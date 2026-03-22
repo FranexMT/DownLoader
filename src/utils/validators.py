@@ -59,8 +59,9 @@ def verify_checksum(filepath: str, expected_hash: str, algorithm: str = 'sha256'
     if not expected_hash:
         return True
     
-    hash_func = getattr(hashlib, algorithm, None)
-    if not hash_func:
+    try:
+        hash_func = hashlib.new(algorithm)
+    except ValueError:
         return True
     
     try:
@@ -71,7 +72,7 @@ def verify_checksum(filepath: str, expected_hash: str, algorithm: str = 'sha256'
         actual_hash = hash_func.hexdigest().lower()
         return actual_hash == expected_hash.lower()
     except Exception:
-        return True
+        return False
 
 
 def get_file_hash(filepath: str, algorithm: str = 'sha256') -> str:

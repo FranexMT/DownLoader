@@ -5,18 +5,18 @@ Gestor de descargas con CLI y GUI para Python.
 ## Características
 
 - ✅ **Multithreading**: Descargas más rápidas con múltiples conexiones
-- ✅ **Pausar/Reanudar**: Control total sobre las descargas
-- ✅ **Barra de progreso**: Visualización en tiempo real
-- ✅ **Historial**: Registro de todas las descargas
-- ✅ **CLI**: Interfaz de línea de comandos
-- ✅ **GUI**: Interfaz gráfica con Tkinter
+- ✅ **Pause/Resume real**: Continúa descargas desde donde se quedó
+- ✅ **Throttling**: Limita la velocidad de descarga
+- ✅ **Verificación de integridad**: Checksum MD5/SHA256
+- ✅ **System Tray**: Minimiza a la bandeja del sistema
+- ✅ **Redes sociales**: Soporte para YouTube, Twitter, Instagram, etc.
+- ✅ **CLI**: Interfaz de línea de comandos avanzada
+- ✅ **GUI**: Interfaz gráfica moderna con CustomTkinter
 
 ## Requisitos
 
 - Python 3.8+
-- requests
-- tqdm
-- colorama (para CLI)
+- Ver `requirements.txt`
 
 ## Instalación
 
@@ -39,6 +39,11 @@ python main.py --gui
 python main.py add "https://ejemplo.com/archivo.zip" /ruta/destino
 ```
 
+#### Agregar con límite de velocidad
+```bash
+python main.py add "https://ejemplo.com/archivo.zip" --speed 500
+```
+
 #### Listar descargas activas
 ```bash
 python main.py list
@@ -47,6 +52,11 @@ python main.py list
 #### Ver historial
 ```bash
 python main.py history
+```
+
+#### Dashboard
+```bash
+python main.py dashboard
 ```
 
 #### Pausar descarga
@@ -68,6 +78,8 @@ python main.py cancel <id>
 ```bash
 python main.py config --show              # Ver configuración
 python main.py config --threads 8         # Cambiar hilos
+python main.py config --speed 1000         # Velocidad máxima KB/s
+python main.py config --checksum sha256    # Verificación MD5/SHA256
 python main.py config --path ~/Downloads   # Cambiar ruta
 ```
 
@@ -77,13 +89,16 @@ python main.py config --path ~/Downloads   # Cambiar ruta
 DownLoader/
 ├── src/
 │   ├── core/           # Motor de descargas
-│   │   ├── downloader.py
-│   │   ├── history.py
-│   │   └── config.py
+│   │   ├── downloader.py      # Descargador principal
+│   │   ├── chunk_manager.py   # Gestión de fragmentos y resume
+│   │   ├── database.py        # Base de datos SQLite
+│   │   └── config.py          # Configuración
 │   ├── cli/            # Interfaz CLI
 │   │   └── main.py
-│   └── gui/            # Interfaz GUI
-│       └── main.py
+│   ├── gui/            # Interfaz GUI
+│   │   ├── main.py
+│   │   └── system_tray.py     # Icono de bandeja
+│   └── utils/          # Utilidades
 ├── main.py
 ├── setup.py
 └── requirements.txt
@@ -94,9 +109,10 @@ DownLoader/
 La configuración se guarda en `~/.downloader/config.json`:
 - `default_threads`: Hilos por defecto (4)
 - `default_download_path`: Ruta de descarga
-- `chunk_size`: Tamaño de chunk
-- `max_retries`: Reintentos máximos
+- `max_speed_kbps`: Velocidad máxima (0 = sin límite)
+- `checksum_type`: Tipo de verificación (none/md5/sha256)
 - `timeout`: Timeout de conexión
+- `minimize_to_tray`: Minimizar a bandeja al cerrar
 
 ## Licencia
 

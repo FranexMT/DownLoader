@@ -1,4 +1,27 @@
 from datetime import datetime
+import logging
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+
+logger = logging.getLogger(__name__)
+
+
+def send_notification(title, message):
+    """Envía una notificación nativa del sistema."""
+    try:
+        from plyer import notification
+        notification.notify(
+            title=title,
+            message=message,
+            app_name="DownLoader",
+            app_icon="",  # Se puede añadir un icono .ico o .png
+            timeout=10,
+        )
+    except Exception as e:
+        print(f"Error enviando notificación: {e}")
 
 
 def format_bytes(size: int) -> str:
@@ -49,7 +72,7 @@ def format_speed(bytes_per_second: float) -> str:
 def format_timestamp(timestamp: float) -> str:
     """Formatea timestamp a fecha legible."""
     dt = datetime.fromtimestamp(timestamp)
-    return dt.strftime("%Y-%m-%d %H:%M:%s")
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def get_file_extension(filename: str) -> str:
@@ -93,3 +116,28 @@ def get_file_icon(extension: str) -> str:
         'iso': '💿',
     }
     return icons.get(extension.lower(), '📁')
+
+
+def check_ffmpeg() -> bool:
+    """Verifica si FFmpeg está instalado en el sistema."""
+    import shutil
+    return shutil.which("ffmpeg") is not None
+
+
+def open_file(filepath: str) -> bool:
+    """Abre un archivo con la aplicación por defecto del sistema."""
+    try:
+        filepath = str(filepath)
+        if not Path(filepath).exists():
+            return False
+
+        if sys.platform == "win32":
+            os.startfile(filepath)
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", filepath])
+        else:  # Linux
+            subprocess.Popen(["xdg-open", filepath])
+        return True
+    except Exception as e:
+        logger.error(f"Error opening file: {e}")
+        return False

@@ -6,6 +6,8 @@ from typing import Optional, List, Dict
 from datetime import datetime
 import logging
 
+from ..utils.validators import extract_filename_from_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -29,6 +31,8 @@ class Database:
                 CREATE TABLE IF NOT EXISTS downloads (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     url TEXT NOT NULL,
+                    title TEXT,
+                    thumbnail TEXT,
                     filename TEXT NOT NULL,
                     destination TEXT NOT NULL,
                     total_size INTEGER DEFAULT 0,
@@ -44,23 +48,27 @@ class Database:
                 )
             """)
             
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_status ON downloads(status)
-            """)
+            # Migraciones: Agregar columnas si no existen
+            cursor = conn.cursor()
+            cursor.execute("PRAGMA table_info(downloads)")
+            columns = [c[1] for c in cursor.fetchall()]
             
-            conn.execute("""
-                CREATE INDEX IF NOT EXISTS idx_created_at ON downloads(created_at)
-            """)
+            if "title" not in columns:
+                cursor.execute("ALTER TABLE downloads ADD COLUMN title TEXT")
+            if "thumbnail" not in columns:
+                cursor.execute("ALTER TABLE downloads ADD COLUMN thumbnail TEXT")
             
             conn.commit()
     
-    def create_download(self, url: str, filename: str, destination: str) -> int:
+    def create_download(self, url: str, filename: str, destination: str, title: str = None, thumbnail: str = None) -> int:
         """Crea un nuevo registro de descarga."""
+        if filename == "pending":
+            filename = extract_filename_from_url(url)
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute("""
-                INSERT INTO downloads (url, filename, destination, status, start_time)
-                VALUES (?, ?, ?, 'PENDING', ?)
-            """, (url, filename, destination, time.time()))
+                INSERT INTO downloads (url, filename, destination, status, start_time, title, thumbnail)
+                VALUES (?, ?, ?, 'PENDING', ?, ?, ?)
+            """, (url, filename, destination, time.time(), title, thumbnail))
             conn.commit()
             return cursor.lastrowid
     
@@ -68,7 +76,8 @@ class Database:
         """Actualiza campos de una descarga."""
         allowed_fields = [
             'filename', 'destination', 'total_size', 'downloaded_size',
-            'status', 'speed', 'end_time', 'error_message', 'checksum'
+            'status', 'speed', 'end_time', 'error_message', 'checksum',
+            'title', 'thumbnail'
         ]
         
         updates = {k: v for k, v in kwargs.items() if k in allowed_fields}
@@ -76,7 +85,7 @@ class Database:
         if not updates:
             return
         
-        updates['updated_at'] = time.time()
+        updates['updated_at'] = datetime.utcnow().isoformat()
         
         set_clause = ", ".join([f"{k} = ?" for k in updates.keys()])
         values = list(updates.values()) + [download_id]

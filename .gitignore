@@ -1,0 +1,49 @@
+# Virtual environments
+venv/
+env/
+.venv
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.spec.bak
+
+# IDE and editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Database and config
+*.db
+*.sqlite
+*.sqlite3
+~/.downloader/
+
+# Build tools
+.ruff_cache/
+.mypy_cache/
+
+# Environment variables
+.env
+.env.local
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Temporary files
+*.tmp
+.*.tmp
+*.part

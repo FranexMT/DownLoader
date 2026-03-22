@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#767577",
+                        "on-primary": "#005762",
+                        "on-tertiary-fixed": "#1c0055",
+                        "tertiary-container": "rgb(var(--secondary-rgb))",
+                        "surface-container-high": "#1f1f22",
+                        "surface-variant": "#262528",
+                        "error": "#ff716c",
+                        "secondary-dim": "#f67772",
+                        "on-secondary": "#530008",
+                        "inverse-primary": "#006976",
+                        "on-surface": "#f6f3f5",
+                        "primary-fixed": "rgb(var(--primary-rgb))",
+                        "primary-dim": "rgb(var(--primary-rgb))",
+                        "surface": "#0e0e10",
+                        "error-container": "#9f0519",
+                        "outline-variant": "#48474a",
+                        "on-secondary-fixed-variant": "#922c2c",
+                        "on-primary-fixed-variant": "#005762",
+                        "secondary-fixed-dim": "#ffafaa",
+                        "primary-fixed-dim": "rgb(var(--primary-rgb))",
+                        "primary-container": "rgb(var(--primary-rgb))",
+                        "on-primary-fixed": "#003840",
+                        "on-surface-variant": "#acaaad",
+                        "surface-dim": "#0e0e10",
+                        "on-secondary-container": "#ffc1bd",
+                        "inverse-on-surface": "#555557",
+                        "on-tertiary-container": "#ffffff",
+                        "on-error": "#490006",
+                        "surface-bright": "#2c2c2f",
+                        "primary": "rgb(var(--primary-rgb))",
+                        "tertiary-fixed": "rgb(var(--secondary-rgb))",
+                        "surface-tint": "rgb(var(--primary-rgb))",
+                        "surface-container": "#19191c",
+                        "on-tertiary": "#25006b",
+                        "on-tertiary-fixed-variant": "#4000ad",
+                        "on-primary-container": "#004d57",
+                        "inverse-surface": "#fcf8fb",
+                        "on-error-container": "#ffa8a3",
+                        "tertiary-fixed-dim": "rgb(var(--secondary-rgb))",
+                        "secondary-container": "rgb(var(--secondary-rgb))",
+                        "on-background": "#f6f3f5",
+                        "surface-container-highest": "#262528",
+                        "secondary": "rgb(var(--secondary-rgb))",
+                        "on-secondary-fixed": "#6a0e13",
+                        "error-dim": "#d7383b",
+                        "background": "#0e0e10",
+                        "surface-container-low": "#131315",
+                        "secondary-fixed": "rgb(var(--secondary-rgb))",
+                        "tertiary": "rgb(var(--secondary-rgb))",
+                        "surface-container-lowest": "#000000",
+                        "tertiary-dim": "rgb(var(--secondary-rgb))"
+                    },
+                    fontFamily: {
+                        "headline": ["Space Grotesk"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        :root {
+            --primary-rgb: 0, 227, 253;
+            --secondary-rgb: 166, 140, 255;
+            --surface-rgb: 14, 14, 16;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #f6f3f5;
+            --text-muted: #acaaad;
+            --accent-hue: 187;
+        }
+
+        [data-color="red"] { --primary-rgb: 239, 68, 68; --secondary-rgb: 185, 28, 28; --accent-hue: 0; }
+        [data-color="orange"] { --primary-rgb: 249, 115, 22; --secondary-rgb: 194, 65, 12; --accent-hue: 25; }
+        [data-color="yellow"] { --primary-rgb: 234, 179, 8; --secondary-rgb: 161, 98, 7; --accent-hue: 45; }
+        [data-color="green"] { --primary-rgb: 34, 197, 94; --secondary-rgb: 22, 101, 52; --accent-hue: 120; }
+        [data-color="cyan"] { --primary-rgb: 0, 227, 253; --secondary-rgb: 8, 145, 178; --accent-hue: 187; }
+        [data-color="blue"] { --primary-rgb: 59, 130, 246; --secondary-rgb: 30, 64, 175; --accent-hue: 217; }
+        [data-color="violet"] { --primary-rgb: 139, 92, 246; --secondary-rgb: 109, 40, 217; --accent-hue: 258; }
+        [data-color="purple"] { --primary-rgb: 168, 85, 247; --secondary-rgb: 126, 34, 206; --accent-hue: 271; }
+        [data-color="pink"] { --primary-rgb: 236, 72, 153; --secondary-rgb: 157, 11, 74; --accent-hue: 330; }
+        [data-color="white"] { --primary-rgb: 255, 255, 255; --secondary-rgb: 156, 163, 175; --accent-hue: 0; }
+
+        .glass-panel {
+            position: relative;
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px) saturate(160%);
+            -webkit-backdrop-filter: blur(28px) saturate(160%);
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 4px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .glass-panel:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+        }
+
+        .glass-panel::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.4),
+                    transparent 50%,
+                    rgba(255, 255, 255, 0.1));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        /* Internal crystalline reflections */
+        .glass-panel::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%,
+                    rgba(255, 255, 255, 0.03) 0%,
+                    transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        .glass-sheen {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.1),
+                    transparent);
+            pointer-events: none;
+        }
+
+        .glass-panel:hover .glass-sheen {
+            animation: clean-sheen 2s infinite ease-out;
+        }
+
+        @keyframes clean-sheen {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .glass-input {
+            background: rgba(0, 0, 0, 0.4) !important;
+            backdrop-filter: blur(15px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow:
+                inset 0 2px 10px rgba(0, 0, 0, 0.5),
+                0 1px 1px rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white !important;
+        }
+
+        .glass-input:hover {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            box-shadow:
+                inset 0 2px 15px rgba(0, 0, 0, 0.6),
+                0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-input:focus {
+            background: rgba(0, 0, 0, 0.6) !important;
+            border-color: rgba(var(--secondary-rgb), 0.5) !important;
+            box-shadow:
+                0 0 25px rgba(var(--secondary-rgb), 0.15),
+                inset 0 2px 10px rgba(0, 0, 0, 0.7);
+            outline: none;
+        }
+
+        /* Force Dark Inputs and Reset Defaults */
+        select.glass-input,
+        input.glass-input {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        input[type="number"].glass-input::-webkit-inner-spin-button,
+        input[type="number"].glass-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .glass-button {
+            position: relative;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-button:active {
+            transform: translateY(0);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        @keyframes orb-float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-30px) scale(1.05);
+            }
+        }
+
+        .bg-orb {
+            animation: orb-float 15s infinite ease-in-out;
+            filter: blur(100px);
+            opacity: 0.5;
+            transition: background-color 0.5s ease;
+        }
+
+        .color-btn.active {
+            ring: 2px;
+            ring-offset-2;
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#0c0c0e] text-on-surface text-[#f6f3f5] font-body selection:bg-primary/30 min-h-screen overflow-x-hidden transition-colors duration-500">
+    <!-- Ambient Background Gradients -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="bg-orb absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full" style="background-color: rgb(var(--primary-rgb) / 0.15);"></div>
+        <div class="bg-orb absolute bottom-[-10%] left-[-5%] w-[800px] h-[800px] rounded-full"
+            style="background-color: rgb(var(--secondary-rgb) / 0.1); animation-delay: 2s;"></div>
+        <div class="bg-orb absolute top-[20%] left-[10%] w-[400px] h-[400px] rounded-full"
+            style="background-color: rgb(var(--secondary-rgb) / 0.1); animation-delay: 4s;"></div>
+        <div class="absolute inset-0 bg-background/50"></div>
+    </div>
+
+    <!-- SideNavBar -->
+    <nav class="fixed left-0 top-0 h-full z-40 flex flex-col p-6 bg-zinc-950/20 backdrop-blur-3xl h-screen w-64 border-r border-white/5 transition-transform duration-300 -translate-x-full md:translate-x-0"
+        id="sidebar">
+        <div class="mb-12 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl overflow-hidden glass-panel border border-white/10 p-1 bg-white/5">
+                <img src="logo.png" alt="Logo" class="w-full h-full object-contain">
+            </div>
+            <div>
+                <h1
+                    class="font-headline tracking-tight text-lg font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    DownLoader</h1>
+                <p class="font-headline tracking-tight text-[10px] uppercase text-zinc-500 font-bold tracking-[0.2em]">
+                    V2.1</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col space-y-4 flex-grow">
+            <!-- Dashboard Tab Button -->
+            <button id="nav-dashboard" data-view="dashboard"
+                class="nav-btn flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 text-secondary bg-secondary/10 font-bold border-r-2 border-secondary scale-105 active-nav">
+                <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                <span class="font-label">Tablero</span>
+            </button>
+
+            <!-- Downloads Tab Button -->
+            <button id="nav-downloads" data-view="tasks"
+                class="nav-btn flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 text-zinc-500 hover:text-zinc-300 hover:bg-white/5">
+                <span class="material-symbols-outlined" data-icon="download">download</span>
+                <span class="font-label">Descargas</span>
+            </button>
+
+            <!-- History Tab Button -->
+            <button id="nav-history" data-view="history"
+                class="nav-btn flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 text-zinc-500 hover:text-zinc-300 hover:bg-white/5">
+                <span class="material-symbols-outlined" data-icon="history">history</span>
+                <span class="font-label">Historial</span>
+            </button>
+
+            <!-- Settings Tab Button -->
+            <button id="nav-settings" data-view="settings"
+                class="nav-btn flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 text-zinc-500 hover:text-zinc-300 hover:bg-white/5">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="font-label">Ajustes</span>
+            </button>
+
+            <!-- Support Project -->
+            <div class="mt-8 p-4 glass-panel bg-white/5 rounded-2xl border border-white/5">
+                <div class="mt-6 p-4 rounded-2xl bg-secondary/10 border border-secondary/20">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-secondary mb-2">Mantén vivo el
+                        proyecto</p>
+                    <a href="https://ko-fi.com/franex" target="_blank"
+                        class="flex items-center justify-center gap-2 py-2 bg-secondary text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-secondary/20">
+                        <span class="material-symbols-outlined text-sm">favorite</span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Donar</span>
+                    </a>
+                </div>
+
+                <div class="mt-4 px-4">
+                    <button id="show-legal"
+                        class="flex items-center gap-2 text-zinc-500 hover:text-white transition-colors group w-full text-left">
+                        <span
+                            class="material-symbols-outlined text-sm group-hover:rotate-12 transition-transform">gavel</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest">Aviso Legal</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Storage Brief -->
+        <div class="mt-8 p-4 glass-panel bg-white/5 rounded-2xl border border-white/5">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Node Storage</span>
+                <span class="text-[10px] font-mono text-secondary" id="sidebar-storage-pct">0%</span>
+            </div>
+            <div class="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                <div id="sidebar-storage-bar" class="h-full bg-secondary w-0 transition-all duration-500"></div>
+            </div>
+            <p class="text-[9px] text-zinc-600 mt-2 font-mono" id="sidebar-storage-text">Allocating space...</p>
+        </div>
+
+        <div class="mt-auto pt-6 flex items-center gap-3 border-t border-white/5">
+            <div
+                class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-white/10">
+                <img alt="User Profile" class="w-full h-full object-cover"
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNGlhDxJQgr3DpTMkFxRkckJ64FGTAcDzaAPe3NrUqj8QLblCWjTqkyTQ_S3rRvgBwmGELIamVqiX71ti_HB1J2vZ6eMZgmpG6wyZwZTOTbLPu4THLhS9Tc4GbU-E1BV2xFRreHB-ZkhQojmEYKd0nO3f-KaXlG0J0NGozG23DEkMNIntujm77eyqwwLdYp-XOalq4pVD29MdSYUsYvtp_0mVioSjk-MEaXZikqX9zabj875wu4sj1JtM6ZKqMYNq5IjD1f51m_rU" />
+            </div>
+            <div>
+                <p class="text-sm font-bold text-white leading-none">Admin_01</p>
+                <p class="text-[10px] text-zinc-500 font-mono">v4.2.0-stable</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TopAppBar -->
+    <header
+        class="flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50 bg-zinc-950/20 backdrop-blur-xl md:pl-72 border-b border-white/5">
+        <div class="flex items-center gap-4">
+            <button id="mobile-menu-btn" class="md:hidden text-white p-2">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="hidden md:block text-xl font-black text-white font-headline">DownLoader Pro</div>
+            <div class="h-4 w-px bg-white/10 hidden md:block"></div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-zinc-500" id="breadcrumb">Sistema / Cola
+            </div>
+            <div id="global-status-badge"
+                class="flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/5 opacity-0 transition-all duration-500">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+                <span class="text-[9px] font-black uppercase tracking-widest text-secondary">Procesando...</span>
+            </div>
+        </div>
+        <div class="flex-grow max-w-xl mx-8 relative">
+            <div
+                class="flex items-center glass-input rounded-xl px-4 py-2 focus-within:ring-1 focus-within:ring-secondary/50 transition-all">
+                <span class="material-symbols-outlined text-zinc-500 mr-2" data-icon="search">search</span>
+                <input id="search-input"
+                    class="bg-transparent border-none focus:ring-0 text-xs tracking-widest font-label w-full text-white placeholder:text-zinc-600"
+                    placeholder="BUSCAR DESCARGAS..." type="text" />
+            </div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/10 border border-secondary/20">
+                <div class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></div>
+                <span class="text-[10px] font-black text-secondary uppercase tracking-widest" id="ip-display">Local
+                    Mode</span>
+            </div>
+            <button class="text-zinc-400 hover:text-white transition-opacity">
+                <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+            </button>
+            <button class="text-zinc-400 hover:text-white transition-opacity">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 w-full md:w-[calc(100%-16rem)] pt-20 px-4 md:pt-8 md:px-12 pb-24 relative z-10"
+        id="main-tasks">
+        <!-- Header Stats -->
+        <div class="mb-12 flex items-baseline justify-between">
+            <div>
+                <h2 class="font-headline text-5xl font-light text-white tracking-tighter leading-none"
+                    id="section-title">Cola Activa</h2>
+                <div class="flex items-center gap-3 mt-3">
+                    <p class="font-label text-white font-bold tracking-widest uppercase text-[10px]" id="total-speed">
+                        0.0 MB/s</p>
+                    <div class="h-3 w-px bg-white/10"></div>
+                    <p class="font-label text-zinc-500 tracking-widest uppercase text-[10px]" id="active-tasks-label">0
+                        Tareas Activas</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span
+                    class="font-headline text-5xl font-bold bg-gradient-to-b from-white to-white/20 bg-clip-text text-transparent"
+                    id="pending-count">00</span>
+                <p class="font-label text-zinc-500 text-[10px] uppercase tracking-widest mt-1">Sincronización</p>
+            </div>
+        </div>
+
+        <!-- Add Link Input Section -->
+        <section
+            class="mb-16 glass-panel bg-surface-container/40 rounded-3xl p-8 border border-white/5 shadow-2xl relative overflow-hidden group">
+            <div
+                class="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none">
+            </div>
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="text-zinc-500 font-label tracking-widest uppercase text-[10px] font-black">
+                        Ingresa tus enlaces aquí</p>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <span
+                            class="text-[10px] font-black uppercase tracking-widest text-zinc-500 group-hover:text-secondary transition-colors">Modo
+                            Lote</span>
+                        <div class="relative inline-flex items-center">
+                            <input type="checkbox" id="batch-toggle" class="sr-only peer">
+                            <div
+                                class="w-9 h-5 bg-zinc-800 peer-focus:ring-2 peer-focus:ring-secondary/30 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-zinc-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-secondary after:peer-checked:bg-white">
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                <div class="flex flex-col gap-4 mb-4">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <div class="flex-grow relative">
+                            <input id="url-input"
+                                class="w-full glass-input rounded-2xl px-6 py-5 text-white placeholder:text-zinc-600 font-body outline-none"
+                                placeholder="Pega el enlace aquí (YouTube, Instagram, etc.)..." type="text" />
+                            <textarea id="url-input-batch"
+                                class="hidden w-full glass-input rounded-2xl px-6 py-4 text-white placeholder:text-zinc-600 font-body outline-none min-h-[120px] resize-none"
+                                placeholder="Pega un enlace por línea..."></textarea>
+                            <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-2">
+                                <button id="detect-btn" class="p-2 text-zinc-500 hover:text-secondary transition-colors"
+                                    title="Detectar tipo">
+                                    <span class="material-symbols-outlined" data-icon="search">search</span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="download-btn"
+                            class="bg-secondary text-black font-label font-black uppercase tracking-widest px-10 py-5 rounded-2xl flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-secondary/20">
+                            <span class="material-symbols-outlined" data-icon="download">download</span>
+                            Descargar
+                        </button>
+                    </div>
+                    <!-- Custom Destination & Speed -->
+                    <div class="flex flex-col md:flex-row gap-4 items-end">
+                        <div class="flex-grow w-full">
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Destino
+                                Personalizado (opcional)</label>
+                            <input id="custom-path"
+                                class="w-full glass-input rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 font-mono text-sm outline-none"
+                                placeholder="Dejar en blanco para usar por defecto..." type="text" />
+                        </div>
+                        <div class="w-40">
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Velocidad
+                                (KB/s)</label>
+                            <input id="custom-speed"
+                                class="w-full glass-input rounded-xl px-4 py-3 text-white placeholder:text-zinc-600 font-mono text-sm outline-none"
+                                placeholder="0 = ilimitada" type="number" min="0" value="0" />
+                        </div>
+                        <button id="browse-dest-btn" class="px-4 py-3 glass-button bg-white/5 rounded-xl text-zinc-400">
+                            <span class="material-symbols-outlined">folder_open</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quality/Format Options (shown for social media) -->
+                <div id="quality-options" class="hidden">
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-black/20 rounded-2xl border border-white/5">
+                        <div>
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Quality</label>
+                            <select id="quality-select"
+                                class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none">
+                                <option value="best">Best Quality</option>
+                                <option value="1080p">1080p HD</option>
+                                <option value="720p">720p HD</option>
+                                <option value="480p">480p</option>
+                                <option value="audio_only">Audio Only (MP3)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-2">Format</label>
+                            <select id="format-select"
+                                class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none">
+                                <option value="">Auto (Recommended)</option>
+                                <option value="mp4">MP4 Video</option>
+                                <option value="webm">WebM Video</option>
+                                <option value="mkv">MKV Video</option>
+                                <option value="mp3">MP3 Audio</option>
+                                <option value="m4a">M4A Audio</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Video Info Preview -->
+                    <div id="video-info" class="mt-4 p-4 bg-black/20 rounded-2xl border border-white/5 hidden">
+                        <div class="flex items-center gap-4">
+                            <img id="video-thumb" src="" class="w-24 h-16 object-cover rounded-lg bg-zinc-800" />
+                            <div>
+                                <h4 id="video-title" class="text-white font-bold text-sm truncate max-w-md"></h4>
+                                <p id="video-uploader" class="text-zinc-500 text-xs mt-1"></p>
+                                <p id="video-duration" class="text-primary text-xs mt-1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- URL type indicator -->
+                <div id="url-type-indicator" class="mt-3 flex items-center gap-2 text-xs">
+                    <span class="text-zinc-600">URL type:</span>
+                    <span id="url-type-badge" class="px-2 py-0.5 rounded bg-zinc-700 text-zinc-400">Enter URL...</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Downloads Grid/List -->
+        <section class="space-y-4" id="tasks-container">
+            <!-- Dynamic task items go here -->
+        </section>
+
+        <!-- Stats Section (Bento Style) -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16" id="stats-section">
+            <div
+                class="glass-panel rounded-3xl p-8 flex flex-col justify-between h-52 group hover:scale-[1.02] transition-all">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Node Storage</span>
+                    <span
+                        class="material-symbols-outlined text-zinc-600 group-hover:text-secondary transition-colors">database</span>
+                </div>
+                <div>
+                    <p class="font-headline text-4xl font-bold text-white mb-4" id="storage-text">... <span
+                            class="text-sm font-normal text-zinc-500">GB</span></p>
+                    <div class="w-full h-1.5 glass-input rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-secondary to-primary w-0 transition-all duration-1000"
+                            id="storage-bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="glass-panel rounded-3xl p-8 flex flex-col justify-between h-52 group hover:scale-[1.02] transition-all overflow-hidden relative">
+                <div class="flex justify-between items-start relative z-10">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Throughput Live</span>
+                    <span class="text-[10px] font-mono text-secondary">Real-time</span>
+                </div>
+
+                <!-- Simple Chart Placeholder (Will be updated via JS) -->
+                <div
+                    class="absolute bottom-0 left-0 w-full h-24 opacity-30 group-hover:opacity-50 transition-opacity pointer-events-none">
+                    <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100" id="speed-chart">
+                        <path d="M0 100 Q 25 80, 50 90 T 100 70 V 100 H 0 Z" fill="url(#chart-gradient)" />
+                        <defs>
+                            <linearGradient id="chart-gradient" x1="0" x2="0" y1="0" y2="1">
+                                <stop offset="0%" stop-color="#fd7c77" />
+                                <stop offset="100%" stop-color="#fd7c77" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+
+                <div class="relative z-10">
+                    <p class="font-headline text-4xl font-bold text-white" id="network-status">Stable</p>
+                    <p class="text-[10px] font-mono text-secondary mt-1" id="latency-text">Internal Latency: 14ms</p>
+                </div>
+            </div>
+
+            <div
+                class="glass-panel rounded-3xl p-8 flex flex-col justify-between h-52 group hover:scale-[1.02] transition-all">
+                <div class="flex justify-between items-start">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Data Transferred</span>
+                    <span class="material-symbols-outlined text-zinc-600">swap_vert</span>
+                </div>
+                <div>
+                    <p class="font-headline text-4xl font-bold text-white" id="total-transferred-text">... <span
+                            class="text-sm font-normal text-zinc-500">TB</span></p>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="w-2 h-2 rounded-full bg-secondary"></div>
+                        <p class="text-[10px] font-mono text-secondary uppercase tracking-widest">Aggregate Payload</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- History View (Hidden by default) -->
+    <main class="md:ml-64 w-full md:w-[calc(100%-16rem)] pt-20 px-4 md:pt-8 md:px-12 pb-24 relative z-10 hidden"
+        id="main-history">
+        <div class="mb-8 flex items-end justify-between">
+            <div>
+                <h2 class="font-headline text-5xl font-light text-white tracking-tighter leading-none">History</h2>
+                <p class="font-label text-zinc-500 mt-2 tracking-widest uppercase text-xs">All downloads and
+                    transactions</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Filter buttons -->
+                <div class="flex gap-2">
+                    <button id="filter-all"
+                        class="px-4 py-2 bg-secondary/20 text-secondary rounded-xl text-sm font-bold transition-all active">All</button>
+                    <button id="filter-completed"
+                        class="px-4 py-2 bg-white/5 text-zinc-400 hover:bg-white/10 rounded-xl text-sm font-bold transition-all">Completed</button>
+                    <button id="filter-failed"
+                        class="px-4 py-2 bg-white/5 text-zinc-400 hover:bg-white/10 rounded-xl text-sm font-bold transition-all">Failed</button>
+                </div>
+                <button id="history-clear-btn"
+                    class="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <!-- History Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div class="glass-panel rounded-xl p-4">
+                <p class="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Items</p>
+                <p class="font-headline text-2xl font-bold text-white" id="hist-total">0</p>
+            </div>
+            <div class="glass-panel rounded-xl p-4">
+                <p class="text-zinc-500 text-xs uppercase tracking-widest mb-1">Total Size</p>
+                <p class="font-headline text-2xl font-bold text-primary" id="hist-size">0 B</p>
+            </div>
+            <div class="glass-panel rounded-xl p-4">
+                <p class="text-zinc-500 text-xs uppercase tracking-widest mb-1">Success Rate</p>
+                <p class="font-headline text-2xl font-bold text-green-400" id="hist-rate">0%</p>
+            </div>
+        </div>
+
+        <!-- Search -->
+        <div class="mb-6">
+            <div class="flex items-center glass-input rounded-xl px-4 py-3">
+                <span class="material-symbols-outlined text-zinc-500 mr-3">search</span>
+                <input id="history-search"
+                    class="bg-transparent border-none text-white placeholder:text-zinc-600 w-full outline-none"
+                    placeholder="Search by filename or URL..." type="text" />
+            </div>
+        </div>
+
+        <section class="space-y-3" id="history-container">
+            <!-- Dynamic history items go here -->
+        </section>
+    </main>
+
+    <!-- Dashboard View (Hidden by default) -->
+    <main class="md:ml-64 w-full md:w-[calc(100%-16rem)] pt-20 px-4 md:pt-8 md:px-12 pb-24 relative z-10 hidden"
+        id="main-dashboard">
+        <div class="mb-8">
+            <h2 class="font-headline text-5xl font-light text-white tracking-tighter leading-none">Dashboard</h2>
+            <p class="font-label text-zinc-500 mt-2 tracking-widest uppercase text-xs">System overview and statistics
+            </p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            <div class="glass-panel rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-secondary">download</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Total</span>
+                </div>
+                <p class="font-headline text-4xl font-bold text-white" id="dash-total">0</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-green-400">check_circle</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Completed</span>
+                </div>
+                <p class="font-headline text-4xl font-bold text-green-400" id="dash-completed">0</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-red-400">error</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Failed</span>
+                </div>
+                <p class="font-headline text-4xl font-bold text-red-400" id="dash-failed">0</p>
+            </div>
+            <div class="glass-panel rounded-2xl p-6 border border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-primary">data_usage</span>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-zinc-500">Total Downloaded</span>
+                </div>
+                <p class="font-headline text-2xl font-bold text-primary" id="dash-bytes">0 B</p>
+            </div>
+        </div>
+
+        <!-- Active Downloads -->
+        <div class="mb-10">
+            <h3 class="font-headline text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                <span class="material-symbols-outlined text-secondary">cloud_download</span>
+                Active Downloads
+            </h3>
+            <div class="space-y-4" id="dash-active-container">
+                <p class="text-zinc-500 font-label">No active downloads</p>
+            </div>
+        </div>
+
+        <!-- Recent History -->
+        <div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-headline text-2xl font-bold text-white flex items-center gap-3">
+                    <span class="material-symbols-outlined text-tertiary">history</span>
+                    Recent Downloads
+                </h3>
+                <button id="clear-history-btn"
+                    class="px-4 py-2 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-xl text-sm font-bold transition-all flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                    Clear History
+                </button>
+            </div>
+            <div class="space-y-4" id="dash-history-container">
+                <p class="text-zinc-500 font-label">No downloads yet</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings View (Hidden by default) -->
+    <main class="md:ml-64 w-full md:w-[calc(100%-16rem)] pt-20 px-4 md:pt-8 md:px-12 pb-24 relative z-10 hidden"
+        id="main-settings">
+        <div class="mb-12">
+            <h2 class="font-headline text-5xl font-light text-white tracking-tighter leading-none">Settings</h2>
+            <p class="font-label text-zinc-500 mt-2 tracking-widest uppercase text-xs">Engine Configuration</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+            <!-- Download Settings -->
+            <section class="glass-panel rounded-2xl p-6">
+                <h3 class="font-headline text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">download</span>
+                    Download Settings
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Download
+                            Threads</label>
+                        <input type="range" id="threads-slider" min="1" max="16" step="1"
+                            class="w-full h-2 glass-input rounded-lg appearance-none cursor-pointer accent-primary" />
+                        <div class="flex justify-between text-xs font-mono text-zinc-500 mt-2">
+                            <span>1</span>
+                            <span id="threads-val" class="text-secondary font-bold">8</span>
+                            <span>16</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Timeout
+                            (seconds)</label>
+                        <input type="number" id="timeout-input" min="5" max="300"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Max Speed
+                            (KB/s, 0 = unlimited)</label>
+                        <input type="number" id="speed-input" min="0" max="100000" step="100"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none"
+                            placeholder="0 = unlimited" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Checksum
+                            Verification</label>
+                        <select id="checksum-select"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none">
+                            <option value="">None</option>
+                            <option value="md5">MD5</option>
+                            <option value="sha256">SHA256</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Default
+                            Download Path</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="path-input"
+                                class="glass-input rounded-xl px-4 py-3 text-white w-full text-sm font-mono outline-none" />
+                            <button id="browse-btn" class="px-4 glass-button bg-white/5 rounded-xl text-zinc-400">
+                                <span class="material-symbols-outlined">folder</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Social Media Settings -->
+            <section class="glass-panel rounded-2xl p-6">
+                <h3 class="font-headline text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-tertiary">public</span>
+                    Social Media
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Cookies
+                            Browser</label>
+                        <select id="cookies-browser"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none">
+                            <option value="firefox">Firefox</option>
+                            <option value="chrome">Chrome</option>
+                            <option value="edge">Edge</option>
+                            <option value="brave">Brave</option>
+                            <option value="opera">Opera</option>
+                        </select>
+                        <p class="text-[10px] text-zinc-600 mt-1">Used for Twitter/X login verification</p>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Naming
+                            Template</label>
+                        <input type="text" id="naming-template"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm font-mono outline-none"
+                            placeholder="%(title)s.%(ext)s" />
+                        <p class="text-[9px] text-zinc-600 mt-1">Example: %(title)s - %(uploader)s.%(ext)s</p>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <p class="text-sm text-white font-bold">Auto Subtitles</p>
+                            <p class="text-[10px] text-zinc-500">Download and embed subtitles</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="auto-subs-toggle" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-secondary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Automation & Scheduler -->
+            <section class="glass-panel rounded-2xl p-6">
+                <h3 class="font-headline text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">schedule</span>
+                    Scheduler & Automation
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-2 border-b border-white/5 pb-4">
+                        <div>
+                            <p class="text-sm text-white font-bold">Planned Download</p>
+                            <p class="text-[10px] text-zinc-500">Enable scheduled downloads</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="scheduler-toggle" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-secondary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                            </div>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-2">Schedule
+                            Time</label>
+                        <input type="time" id="scheduler-time"
+                            class="w-full glass-input rounded-xl px-4 py-3 text-white text-sm outline-none" />
+                    </div>
+                    <div class="p-3 rounded-xl bg-secondary/5 border border-secondary/20">
+                        <p class="text-[10px] text-secondary text-center font-bold uppercase tracking-widest">
+                            Downloads will start automatically at the set time
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- UI Settings -->
+            <section class="glass-panel rounded-2xl p-6">
+                <h3 class="font-headline text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">palette</span>
+                    Color Theme
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label
+                            class="block text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">Choose Accent Color</label>
+                        <div class="grid grid-cols-6 gap-2" id="color-picker">
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-red-700 hover:scale-110 transition-transform" data-color="red" title="Red"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-orange-700 hover:scale-110 transition-transform" data-color="orange" title="Orange"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-500 to-yellow-700 hover:scale-110 transition-transform" data-color="yellow" title="Yellow"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-green-700 hover:scale-110 transition-transform" data-color="green" title="Green"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-400 to-cyan-600 hover:scale-110 transition-transform" data-color="cyan" title="Cyan"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 hover:scale-110 transition-transform" data-color="blue" title="Blue"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-violet-700 hover:scale-110 transition-transform" data-color="violet" title="Violet"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-700 hover:scale-110 transition-transform" data-color="purple" title="Purple"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-pink-700 hover:scale-110 transition-transform" data-color="pink" title="Pink"></button>
+                            <button class="color-btn w-10 h-10 rounded-lg bg-gradient-to-br from-white to-gray-300 hover:scale-110 transition-transform" data-color="white" title="White"></button>
+                        </div>
+                        <p class="text-[10px] text-zinc-500 mt-2" id="current-color-label">Current: Cyan</p>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <p class="text-sm text-white font-bold">Notifications</p>
+                            <p class="text-[10px] text-zinc-500">Show download completion alerts</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="notifications-toggle" class="sr-only peer" checked>
+                            <div
+                                class="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-secondary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                            </div>
+                        </label>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <p class="text-sm text-white font-bold">Sound Effects</p>
+                            <p class="text-[10px] text-zinc-500">Play sound on completion</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="sound-toggle" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-secondary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Engine Status -->
+            <section class="glass-panel rounded-2xl p-6 md:col-span-2 order-last">
+                <h3 class="font-headline text-xl font-bold text-white mb-6 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-green-400">check_circle</span>
+                    Engine Health
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-secondary">terminal</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-black uppercase tracking-widest text-zinc-500">Video
+                                    Processing</p>
+                                <p class="text-white font-bold text-sm">FFmpeg Core</p>
+                            </div>
+                        </div>
+                        <div id="ffmpeg-status"
+                            class="flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                            <span class="text-[10px] font-black uppercase text-yellow-500">Checking...</span>
+                        </div>
+                    </div>
+                    <div class="p-4 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary">update</span>
+                            </div>
+                            <div>
+                                <p class="text-xs font-black uppercase tracking-widest text-zinc-500">Engine
+                                    Version</p>
+                                <p class="text-white font-bold text-sm">yt-dlp auto-update</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            <span class="text-[10px] font-black uppercase text-green-500">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        </div>
+        </section>
+
+        <!-- Advanced Settings -->
+        <section class="glass-panel rounded-2xl p-6">
+            <h3 class="font-headline text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span class="material-symbols-outlined text-zinc-400">tune</span>
+                Advanced
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <p class="text-sm text-white font-bold">Concurrent Downloads</p>
+                        <p class="text-[10px] text-zinc-500">Max simultaneous downloads</p>
+                    </div>
+                    <input type="number" id="max-concurrent" min="1" max="10" value="3"
+                        class="w-20 glass-input rounded-xl px-3 py-2 text-white text-sm text-center outline-none" />
+                </div>
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <p class="text-sm text-white font-bold">Importar Cookies</p>
+                        <p class="text-[10px] text-zinc-500">Usa tu sesión del navegador para evitar bloqueos</p>
+                    </div>
+                    <select id="cookies-browser"
+                        class="w-28 glass-input rounded-xl px-3 py-2 text-white text-xs outline-none">
+                        <option value="none">Ninguno</option>
+                        <option value="chrome">Chrome</option>
+                        <option value="firefox">Firefox</option>
+                        <option value="edge">Edge</option>
+                        <option value="brave">Brave</option>
+                        <option value="opera">Opera</option>
+                    </select>
+                </div>
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <p class="text-sm text-white font-bold">Auto Retry</p>
+                        <p class="text-[10px] text-zinc-500">Retry failed downloads automatically</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="auto-retry-toggle" class="sr-only peer" checked>
+                        <div
+                            class="w-11 h-6 bg-zinc-700 peer-focus:ring-2 peer-focus:ring-secondary/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                        </div>
+                    </label>
+                </div>
+                <div class="pt-4 border-t border-white/5">
+                    <button id="reset-settings"
+                        class="w-full py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-xl text-sm font-bold transition-all mb-4">
+                        Reset to Defaults
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        </div>
+
+        <!-- Save Button -->
+        <div class="mt-8 max-w-4xl">
+            <button id="save-settings"
+                class="w-full py-4 bg-primary text-on-primary font-black uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all">
+                Save All Settings
+            </button>
+        </div>
+    </main>
+    <!-- Notifications Container -->
+    <div id="notifications-container" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm"></div>
+
+    <!-- Legal Modal -->
+    <div id="legal-modal"
+        class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+        <div class="glass-panel max-w-2xl w-full p-8 rounded-3xl border border-white/10 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-headline font-bold text-white flex items-center gap-2">
+                    <span class="material-symbols-outlined text-secondary">gavel</span>
+                    Aviso Legal
+                </h3>
+                <button id="close-legal" class="text-zinc-500 hover:text-white transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div id="legal-content"
+                class="text-sm text-zinc-300 space-y-4 max-h-[60vh] overflow-y-auto pr-4 font-label">
+                <!-- Content will be loaded from Python -->
+                Cargando términos legales...
+            </div>
+            <div class="mt-8">
+                <button id="accept-legal"
+                    class="w-full py-4 bg-secondary text-on-secondary font-black uppercase tracking-widest rounded-xl hover:scale-[1.02] active:scale-95 transition-all">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
