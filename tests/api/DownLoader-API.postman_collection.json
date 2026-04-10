@@ -1,0 +1,453 @@
+{
+  "info": {
+    "name": "DownLoader API",
+    "description": "Coleccion de pruebas para la API REST de DownLoader Pro v2.1.0\nISO/IEC 29119 - Test Plan, seccion 4.2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "downloader-api-v2-1-0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "{{baseUrl}}",
+      "type": "string"
+    },
+    {
+      "key": "downloadId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Validacion de URL",
+      "item": [
+        {
+          "name": "POST /api/validate - URL valida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('success es true', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.true;",
+                  "});",
+                  "pm.test('valid es true para URL https', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.valid).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\": \"https://example.com/file.zip\"}"
+            },
+            "url": "{{baseUrl}}/api/validate"
+          }
+        },
+        {
+          "name": "POST /api/validate - URL invalida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('valid es false para URL invalida', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.valid).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\": \"not_a_valid_url\"}"
+            },
+            "url": "{{baseUrl}}/api/validate"
+          }
+        },
+        {
+          "name": "POST /api/validate - URL FTP rechazada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('valid es false para URL ftp', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.valid).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\": \"ftp://files.example.com/file.zip\"}"
+            },
+            "url": "{{baseUrl}}/api/validate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRUD de Descargas",
+      "item": [
+        {
+          "name": "POST /api/downloads - Crear descarga valida",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', function() {",
+                  "  pm.response.to.have.status(201);",
+                  "});",
+                  "pm.test('success es true', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.true;",
+                  "});",
+                  "pm.test('ID retornado es numero positivo', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.id).to.be.a('number');",
+                  "  pm.expect(json.data.id).to.be.above(0);",
+                  "});",
+                  "pm.collectionVariables.set('downloadId', pm.response.json().data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\": \"https://example.com/testfile.zip\", \"destination\": \"/tmp\", \"filename\": \"testfile.zip\"}"
+            },
+            "url": "{{baseUrl}}/api/downloads"
+          }
+        },
+        {
+          "name": "POST /api/downloads - URL invalida retorna 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 422 para URL invalida', function() {",
+                  "  pm.response.to.have.status(422);",
+                  "});",
+                  "pm.test('success es false', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"url\": \"not-a-url\"}"
+            },
+            "url": "{{baseUrl}}/api/downloads"
+          }
+        },
+        {
+          "name": "POST /api/downloads - Sin URL retorna 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 sin URL', function() {",
+                  "  pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": "{{baseUrl}}/api/downloads"
+          }
+        },
+        {
+          "name": "GET /api/downloads - Listar descargas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('success es true', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.true;",
+                  "});",
+                  "pm.test('data es array', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data).to.be.an('array');",
+                  "});",
+                  "pm.test('contiene campo total', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/downloads"
+          }
+        },
+        {
+          "name": "GET /api/downloads/:id - Detalle de descarga",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('data contiene campos requeridos', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data).to.have.property('id');",
+                  "  pm.expect(json.data).to.have.property('url');",
+                  "  pm.expect(json.data).to.have.property('status');",
+                  "  pm.expect(json.data).to.have.property('filename');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/downloads/{{downloadId}}"
+          }
+        },
+        {
+          "name": "GET /api/downloads/:id - No encontrado retorna 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 para ID inexistente', function() {",
+                  "  pm.response.to.have.status(404);",
+                  "});",
+                  "pm.test('success es false', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.false;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/downloads/999999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pause y Resume",
+      "item": [
+        {
+          "name": "POST /api/downloads/:id/pause - Pausar descarga",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Estado cambia a PAUSED', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.status).to.equal('PAUSED');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/downloads/{{downloadId}}/pause"
+          }
+        },
+        {
+          "name": "POST /api/downloads/:id/resume - Reanudar descarga",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Estado cambia a DOWNLOADING', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.status).to.equal('DOWNLOADING');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/downloads/{{downloadId}}/resume"
+          }
+        },
+        {
+          "name": "POST /api/downloads/:id/pause - No encontrado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', function() {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/downloads/999999/pause"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Estadisticas",
+      "item": [
+        {
+          "name": "GET /api/stats - Estadisticas globales",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('campos numericos presentes', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.data.total).to.be.a('number');",
+                  "  pm.expect(json.data.completed).to.be.a('number');",
+                  "  pm.expect(json.data.failed).to.be.a('number');",
+                  "  pm.expect(json.data.total_bytes).to.be.a('number');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eliminacion",
+      "item": [
+        {
+          "name": "DELETE /api/downloads/:id - Eliminar descarga",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('success es true', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.success).to.be.true;",
+                  "});",
+                  "pm.test('mensaje de confirmacion presente', function() {",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json.message).to.include('eliminada');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/downloads/{{downloadId}}"
+          }
+        },
+        {
+          "name": "DELETE /api/downloads/:id - No encontrado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 para ID inexistente', function() {",
+                  "  pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/downloads/999999"
+          }
+        }
+      ]
+    }
+  ]
+}

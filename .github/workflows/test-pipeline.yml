@@ -1,0 +1,219 @@
+name: Test Pipeline - DownLoader Pro
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Job 1: Pruebas Unitarias
+  # ─────────────────────────────────────────────
+  unit-tests:
+    name: Pruebas Unitarias (pytest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Instalar dependencias del sistema
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+
+      - name: Instalar dependencias de Python
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Crear directorio de resultados
+        run: mkdir -p test-results
+
+      - name: Ejecutar pruebas unitarias con coverage
+        run: |
+          pytest tests/test_validators.py \
+                 tests/test_helpers.py \
+                 tests/test_database.py \
+                 tests/test_downloader.py \
+                 tests/test_chunk_manager.py \
+                 --cov=src \
+                 --cov-report=html:htmlcov \
+                 --cov-report=xml:coverage.xml \
+                 --cov-report=term-missing \
+                 --cov-fail-under=80 \
+                 --html=test-results/unit-report.html \
+                 --self-contained-html \
+                 -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Subir reporte de coverage
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            htmlcov/
+            coverage.xml
+          retention-days: 30
+
+      - name: Subir reporte de pruebas unitarias
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-report
+          path: test-results/unit-report.html
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # Job 2: Pruebas de API (Flask + Newman)
+  # ─────────────────────────────────────────────
+  api-tests:
+    name: Pruebas de API (Postman/Newman)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Configurar Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Instalar dependencias de Python
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Instalar Newman
+        run: npm install -g newman newman-reporter-htmlextra
+
+      - name: Crear directorio de resultados
+        run: mkdir -p test-results/api
+
+      - name: Iniciar servidor Flask API
+        run: |
+          python tests/api/server.py &
+          echo "API_PID=$!" >> $GITHUB_ENV
+          sleep 3
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          API_PORT: 5001
+
+      - name: Verificar servidor API
+        run: curl -f http://localhost:5001/api/stats || exit 1
+
+      - name: Ejecutar coleccion Postman con Newman
+        run: |
+          newman run tests/api/DownLoader-API.postman_collection.json \
+            --environment tests/api/DownLoader-API.postman_environment.json \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export test-results/api/api-report.html \
+            --reporter-htmlextra-title "DownLoader API Tests" \
+            --bail
+        env:
+          baseUrl: http://localhost:5001
+
+      - name: Detener servidor API
+        if: always()
+        run: kill $API_PID || true
+
+      - name: Subir reporte de API
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-report
+          path: test-results/api/
+          retention-days: 30
+
+  # ─────────────────────────────────────────────
+  # Job 3: Pruebas UI (Playwright)
+  # ─────────────────────────────────────────────
+  ui-tests:
+    name: Pruebas UI (Playwright)
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Instalar dependencias del sistema
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg xvfb
+
+      - name: Instalar dependencias de Python
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+
+      - name: Instalar navegadores de Playwright
+        run: playwright install chromium --with-deps
+
+      - name: Crear directorio de resultados
+        run: mkdir -p test-results/screenshots test-results/videos
+
+      - name: Iniciar servidor GUI (Eel)
+        run: |
+          Xvfb :99 -screen 0 1280x720x24 &
+          DISPLAY=:99 python -m src.gui.web_gui &
+          echo "GUI_PID=$!" >> $GITHUB_ENV
+          sleep 5
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DISPLAY: ":99"
+
+      - name: Ejecutar pruebas UI con Playwright
+        run: |
+          pytest tests/ui/test_gui.py \
+            --no-cov \
+            --html=test-results/ui-report.html \
+            --self-contained-html \
+            -v
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DISPLAY: ":99"
+          GUI_PORT: 8000
+          GUI_HOST: localhost
+          PLAYWRIGHT_HEADLESS: "true"
+          PLAYWRIGHT_SCREENSHOTS_DIR: test-results/screenshots
+
+      - name: Detener servidor GUI
+        if: always()
+        run: kill $GUI_PID || true
+
+      - name: Subir reporte UI y screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ui-test-report
+          path: |
+            test-results/ui-report.html
+            test-results/screenshots/
+          retention-days: 30
