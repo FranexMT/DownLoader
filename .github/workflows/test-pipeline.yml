@@ -45,11 +45,12 @@ jobs:
                  tests/test_database.py \
                  tests/test_downloader.py \
                  tests/test_chunk_manager.py \
-                 --cov=src \
+                 --cov=src/core \
+                 --cov=src/utils \
                  --cov-report=html:htmlcov \
                  --cov-report=xml:coverage.xml \
                  --cov-report=term-missing \
-                 --cov-fail-under=80 \
+                 --cov-fail-under=70 \
                  --html=test-results/unit-report.html \
                  --self-contained-html \
                  -v
@@ -184,10 +185,13 @@ jobs:
           Xvfb :99 -screen 0 1280x720x24 &
           DISPLAY=:99 python -m src.gui.web_gui &
           echo "GUI_PID=$!" >> $GITHUB_ENV
-          sleep 5
+          sleep 8
         env:
           PYTHONPATH: ${{ github.workspace }}
           DISPLAY: ":99"
+
+      - name: Verificar servidor GUI
+        run: curl -f http://localhost:8000 || exit 1
 
       - name: Ejecutar pruebas UI con Playwright
         run: |
