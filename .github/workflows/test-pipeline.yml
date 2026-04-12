@@ -180,9 +180,11 @@ jobs:
         run: |
           pytest tests/ui/test_gui.py \
             --no-cov \
-            --html=test-results/ui-report.html \
+            --html=/tmp/ui-report.html \
             --self-contained-html \
             -v
+          mkdir -p test-results
+          cp /tmp/ui-report.html test-results/ui-report.html
         env:
           PYTHONPATH: ${{ github.workspace }}
 
