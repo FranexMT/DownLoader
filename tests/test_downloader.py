@@ -1,8 +1,8 @@
 """Tests para src/core/downloader.py
 
 Cubre:
-- DownloadTask: inicialización y transiciones de estado (pause/resume/stop)
-- Downloader.create_task: URLs válidas e inválidas
+- DownloadTask: inicializacion y transiciones de estado (pause/resume/stop)
+- Downloader.create_task: URLs validas e invalidas
 - Downloader.pause_task / resume_task / cancel_task
 """
 
@@ -21,7 +21,7 @@ from src.core.downloader import DownloadTask, Downloader
 def _make_task(task_id=1, url="https://example.com/file.zip", destination=None, tmp_path=None):
     """Crea un DownloadTask con valores predeterminados."""
     dest = destination or (tmp_path / "downloads" if tmp_path else Path("/tmp"))
-    with patch("src.core.downloader.load_config", return_value={
+    with patch("src.core.config.load_config", return_value={
         "default_threads": 4,
         "max_speed_kbps": 0,
     }):
@@ -29,7 +29,7 @@ def _make_task(task_id=1, url="https://example.com/file.zip", destination=None, 
 
 
 # ---------------------------------------------------------------------------
-# DownloadTask — inicialización
+# DownloadTask — inicializacion
 # ---------------------------------------------------------------------------
 
 class TestDownloadTaskInit:
@@ -165,15 +165,17 @@ class TestDownloaderCreateTask:
     @pytest.fixture()
     def dl(self, tmp_path):
         """Instancia de Downloader con dependencias mockeadas."""
-        with patch("src.core.downloader.load_config", return_value={
+        mock_db = MagicMock()
+        mock_db.create_download.return_value = 1
+
+        with patch("src.core.config.load_config", return_value={
             "default_threads": 4,
             "default_download_path": str(tmp_path),
             "max_speed_kbps": 0,
             "timeout": 30,
-        }), patch("src.core.downloader.ChunkManager"), \
-           patch("src.core.downloader.threading.Thread"), \
-           patch("src.core.downloader.db") as mock_db:
-            mock_db.create_download.return_value = 1
+        }), patch("src.core.downloader.db", mock_db), \
+           patch("src.core.downloader.ChunkManager"), \
+           patch("src.core.downloader.threading.Thread"):
             downloader = Downloader()
             downloader._mock_db = mock_db
             yield downloader
@@ -226,30 +228,32 @@ class TestDownloaderTaskControl:
     @pytest.fixture()
     def dl_with_task(self, tmp_path):
         """Downloader con una tarea DOWNLOADING precargada."""
-        with patch("src.core.downloader.load_config", return_value={
+        mock_db = MagicMock()
+        mock_db.create_download.return_value = 1
+
+        with patch("src.core.config.load_config", return_value={
             "default_threads": 4,
             "default_download_path": str(tmp_path),
             "max_speed_kbps": 0,
             "timeout": 30,
-        }), patch("src.core.downloader.ChunkManager"), \
-           patch("src.core.downloader.threading.Thread"), \
-           patch("src.core.downloader.db") as mock_db:
-            mock_db.create_download.return_value = 1
+        }), patch("src.core.downloader.db", mock_db), \
+           patch("src.core.downloader.ChunkManager"), \
+           patch("src.core.downloader.threading.Thread"):
             dl = Downloader()
 
-            with patch("src.core.downloader.load_config", return_value={
-                "default_threads": 4,
-                "max_speed_kbps": 0,
-            }):
-                task = DownloadTask(
-                    task_id=1,
-                    url="https://example.com/file.zip",
-                    destination=tmp_path,
-                )
-            task.status = DownloadTask.STATUS_DOWNLOADING
-            dl.tasks[1] = task
-            dl._mock_db = mock_db
-            yield dl, task
+        with patch("src.core.config.load_config", return_value={
+            "default_threads": 4,
+            "max_speed_kbps": 0,
+        }):
+            task = DownloadTask(
+                task_id=1,
+                url="https://example.com/file.zip",
+                destination=tmp_path,
+            )
+        task.status = DownloadTask.STATUS_DOWNLOADING
+        dl.tasks[1] = task
+        dl._mock_db = mock_db
+        yield dl, task
 
     def test_pause_task_existing_returns_true(self, dl_with_task):
         dl, task = dl_with_task
