@@ -1,160 +1,154 @@
 """
-Flask API minimal para pruebas de integracion - DownLoader Pro v2.1.0
-ISO/IEC 29119 - Test Plan, seccion 4.2
-
-Endpoints implementados:
-  POST   /api/downloads          - Crear descarga
-  GET    /api/downloads          - Listar descargas
-  GET    /api/downloads/<id>     - Detalle de descarga
-  POST   /api/downloads/<id>/pause   - Pausar descarga
-  POST   /api/downloads/<id>/resume  - Reanudar descarga
-  DELETE /api/downloads/<id>     - Eliminar descarga
-  GET    /api/stats              - Estadisticas
-  POST   /api/validate           - Validar URL
+Servidor Flask de pruebas para DownLoader Pro.
+Expone la lógica del core via API REST y sirve interfaz web para pruebas UI.
 """
-
-import os
 import sys
+import os
 import tempfile
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
-# Agregar el directorio raiz al path para importar src/
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-
 from src.core.database import Database
+from src.core.config import load_config
 from src.utils.validators import is_valid_url
 
 app = Flask(__name__)
 CORS(app)
 
-# Base de datos temporal para las pruebas
-_db_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-_db_file.close()
-db = Database(db_path=_db_file.name)
+_test_db_dir = tempfile.mkdtemp()
+_test_db = Database(db_path=os.path.join(_test_db_dir, 'test.db'))
+
+HTML_PAGE = """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DownLoader Pro - Test UI</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #1a1a2e; color: #eee; margin: 0; padding: 20px; }
+        h1 { color: #e94560; }
+        h2 { color: #a0c4ff; font-size: 1.1rem; }
+        section { background: #16213e; border-radius: 8px; padding: 16px; margin: 12px 0; }
+        input { background: #0f3460; border: 1px solid #e94560; color: #fff; padding: 8px 12px; border-radius: 4px; width: 60%; font-size: 1rem; }
+        button { background: #e94560; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 1rem; margin-left: 8px; }
+        #validation-result { margin-top: 10px; font-weight: bold; min-height: 20px; }
+        .valid { color: #4caf50; }
+        .invalid { color: #e94560; }
+        #stats-content, #downloads-content { color: #ccc; margin-top: 6px; }
+    </style>
+</head>
+<body>
+    <h1 id="app-title">DownLoader Pro</h1>
+    <p id="app-subtitle">Sistema de gestion de descargas</p>
+
+    <section id="url-form">
+        <h2>Validar URL</h2>
+        <input id="url-input" type="text" placeholder="Ingresa una URL para validar...">
+        <button id="validate-btn" onclick="validateUrl()">Validar URL</button>
+        <div id="validation-result"></div>
+    </section>
+
+    <section id="stats">
+        <h2>Estadisticas</h2>
+        <div id="stats-content">Cargando...</div>
+    </section>
+
+    <section id="downloads-list">
+        <h2>Descargas Recientes</h2>
+        <div id="downloads-content">Cargando...</div>
+    </section>
+
+    <script>
+        async function validateUrl() {
+            var url = document.getElementById('url-input').value;
+            try {
+                var res = await fetch('/api/validate-url', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({url: url})
+                });
+                var data = await res.json();
+                var el = document.getElementById('validation-result');
+                if (data.valid) {
+                    el.textContent = 'URL valida \u2713';
+                    el.className = 'valid';
+                } else {
+                    el.textContent = 'URL invalida \u2717';
+                    el.className = 'invalid';
+                }
+            } catch(e) {
+                document.getElementById('validation-result').textContent = 'Error de conexion';
+            }
+        }
+
+        async function loadStats() {
+            try {
+                var res = await fetch('/api/stats');
+                var data = await res.json();
+                document.getElementById('stats-content').textContent =
+                    'Total: ' + data.total + ' | Completadas: ' + data.completed + ' | Fallidas: ' + data.failed;
+            } catch(e) {
+                document.getElementById('stats-content').textContent = 'Error cargando estadisticas';
+            }
+        }
+
+        async function loadDownloads() {
+            try {
+                var res = await fetch('/api/downloads');
+                var data = await res.json();
+                var el = document.getElementById('downloads-content');
+                if (data.downloads.length === 0) {
+                    el.textContent = 'Sin descargas registradas';
+                } else {
+                    el.textContent = data.downloads.length + ' descarga(s) encontrada(s)';
+                }
+            } catch(e) {
+                document.getElementById('downloads-content').textContent = 'Error cargando descargas';
+            }
+        }
+
+        window.onload = function() {
+            loadStats();
+            loadDownloads();
+        };
+    </script>
+</body>
+</html>
+"""
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-def _not_found(download_id):
-    return jsonify({"success": False, "error": f"Descarga {download_id} no encontrada"}), 404
+@app.route('/')
+def index():
+    return HTML_PAGE
 
 
-def _ok(data=None, message=None, **kwargs):
-    payload = {"success": True}
-    if data is not None:
-        payload["data"] = data
-    if message:
-        payload["message"] = message
-    payload.update(kwargs)
-    return jsonify(payload), 200
+@app.route('/api/stats')
+def stats():
+    return jsonify(_test_db.get_statistics())
 
 
-def _created(data):
-    return jsonify({"success": True, "data": data}), 201
+@app.route('/api/downloads')
+def downloads():
+    return jsonify({'downloads': _test_db.get_all_downloads()})
 
 
-# ---------------------------------------------------------------------------
-# Endpoints
-# ---------------------------------------------------------------------------
-
-@app.route("/api/downloads", methods=["POST"])
-def create_download():
-    body = request.get_json(silent=True) or {}
-    url = body.get("url", "")
-    destination = body.get("destination", "/tmp")
-    filename = body.get("filename", "pending")
-
-    if not url:
-        return jsonify({"success": False, "error": "URL requerida"}), 400
-
-    if not is_valid_url(url):
-        return jsonify({"success": False, "error": "URL invalida"}), 422
-
-    download_id = db.create_download(url=url, filename=filename, destination=destination)
-    record = db.get_download(download_id)
-    return _created({"id": download_id, "download": record})
-
-
-@app.route("/api/downloads", methods=["GET"])
-def list_downloads():
-    page = request.args.get("page", 1, type=int)
-    limit = request.args.get("limit", 20, type=int)
-    status = request.args.get("status", None)
-
-    all_records = db.get_all_downloads(status=status) if status else db.get_all_downloads()
-
-    start = (page - 1) * limit
-    paginated = all_records[start: start + limit]
-
-    return _ok(
-        data=paginated,
-        total=len(all_records),
-        page=page,
-        limit=limit,
-    )
-
-
-@app.route("/api/downloads/<int:download_id>", methods=["GET"])
-def get_download(download_id):
-    record = db.get_download(download_id)
-    if not record:
-        return _not_found(download_id)
-    return _ok(data=record)
-
-
-@app.route("/api/downloads/<int:download_id>/pause", methods=["POST"])
-def pause_download(download_id):
-    record = db.get_download(download_id)
-    if not record:
-        return _not_found(download_id)
-
-    db.update_download(download_id, status="PAUSED")
-    updated = db.get_download(download_id)
-    return _ok(data=updated, message="Descarga pausada")
-
-
-@app.route("/api/downloads/<int:download_id>/resume", methods=["POST"])
-def resume_download(download_id):
-    record = db.get_download(download_id)
-    if not record:
-        return _not_found(download_id)
-
-    db.update_download(download_id, status="DOWNLOADING")
-    updated = db.get_download(download_id)
-    return _ok(data=updated, message="Descarga reanudada")
-
-
-@app.route("/api/downloads/<int:download_id>", methods=["DELETE"])
-def delete_download(download_id):
-    record = db.get_download(download_id)
-    if not record:
-        return _not_found(download_id)
-
-    db.delete_download(download_id)
-    return _ok(message=f"Descarga {download_id} eliminada")
-
-
-@app.route("/api/stats", methods=["GET"])
-def get_stats():
-    stats = db.get_statistics()
-    return _ok(data=stats)
-
-
-@app.route("/api/validate", methods=["POST"])
+@app.route('/api/validate-url', methods=['POST'])
 def validate_url():
-    body = request.get_json(silent=True) or {}
-    url = body.get("url", "")
+    data = request.get_json(silent=True) or {}
+    url = data.get('url', '')
     valid = is_valid_url(url)
-    return _ok(data={"url": url, "valid": valid})
+    return jsonify({'valid': valid, 'url': url})
 
 
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
+@app.route('/api/config')
+def config():
+    cfg = load_config()
+    safe_keys = ['default_threads', 'chunk_size', 'max_retries', 'timeout',
+                 'max_speed_kbps', 'notifications', 'scheduler_enabled']
+    return jsonify({k: cfg[k] for k in safe_keys if k in cfg})
 
-if __name__ == "__main__":
-    port = int(os.environ.get("API_PORT", 5001))
-    app.run(host="0.0.0.0", port=port, debug=False)
+
+if __name__ == '__main__':
+    port = int(os.environ.get('API_PORT', 5001))
+    app.run(host='0.0.0.0', port=port, debug=False)

@@ -42,8 +42,17 @@ build/
 .coverage
 htmlcov/
 .pytest_cache/
+coverage.xml
+
+# Test results (artefactos generados por CI)
+test-results/
 
 # Temporary files
 *.tmp
 .*.tmp
 *.part
+
+# Proyectos ajenos (no pertenecen a DownLoader)
+claude-office/
+claude-tracer/
+watchtower/

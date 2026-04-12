@@ -1,11 +1,10 @@
-# Testing dependencies - DownLoader Pro v2.1.0
+# Dependencias de prueba - DownLoader Pro v2.1.0
 # ISO/IEC 29119 Test Plan
 
 # Unit testing
 pytest>=7.4.0
 pytest-cov>=4.1.0
 pytest-html>=4.0
-pytest-xdist>=3.3
 
 # API testing
 flask>=3.0.0
@@ -13,6 +12,7 @@ flask-cors>=4.0
 
 # UI testing
 playwright>=1.40.0
+pytest-playwright>=0.4.0
 
 # Coverage
 coverage>=7.3
