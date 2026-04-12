@@ -40,7 +40,8 @@ jobs:
                  tests/test_database.py \
                  tests/test_downloader.py \
                  tests/test_chunk_manager.py \
-                 --cov=src \
+                 --cov=src/core \
+                 --cov=src/utils \
                  --cov-report=html:htmlcov \
                  --cov-report=xml:coverage.xml \
                  --cov-report=term-missing \
