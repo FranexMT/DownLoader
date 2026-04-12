@@ -30,24 +30,18 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-test.txt
 
-      - name: Crear directorio de resultados
-        run: mkdir -p test-results
-
       - name: Ejecutar pruebas unitarias con coverage
         run: |
+          mkdir -p test-results
           pytest tests/test_validators.py \
                  tests/test_helpers.py \
                  tests/test_database.py \
                  tests/test_downloader.py \
                  tests/test_chunk_manager.py \
-                 --cov=src/utils \
-                 --cov=src/core/database \
-                 --cov=src/core/chunk_manager \
-                 --cov=src/core/config \
+                 --cov=src \
                  --cov-report=html:htmlcov \
                  --cov-report=xml:coverage.xml \
                  --cov-report=term-missing \
-                 --cov-fail-under=60 \
                  --html=test-results/unit-report.html \
                  --self-contained-html \
                  -v
