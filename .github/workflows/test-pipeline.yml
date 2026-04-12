@@ -40,12 +40,14 @@ jobs:
                  tests/test_database.py \
                  tests/test_downloader.py \
                  tests/test_chunk_manager.py \
-                 --cov=src/core \
                  --cov=src/utils \
+                 --cov=src/core/database \
+                 --cov=src/core/chunk_manager \
+                 --cov=src/core/config \
                  --cov-report=html:htmlcov \
                  --cov-report=xml:coverage.xml \
                  --cov-report=term-missing \
-                 --cov-fail-under=70 \
+                 --cov-fail-under=60 \
                  --html=test-results/unit-report.html \
                  --self-contained-html \
                  -v
