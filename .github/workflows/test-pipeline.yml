@@ -32,18 +32,19 @@ jobs:
 
       - name: Ejecutar pruebas unitarias con coverage
         run: |
-          mkdir -p $GITHUB_WORKSPACE/test-results
           pytest tests/test_validators.py \
                  tests/test_helpers.py \
                  tests/test_database.py \
                  tests/test_downloader.py \
                  tests/test_chunk_manager.py \
                  --cov=src \
-                 --cov-report=html:$GITHUB_WORKSPACE/htmlcov \
-                 --cov-report=xml:$GITHUB_WORKSPACE/coverage.xml \
+                 --cov-report=html:htmlcov \
+                 --cov-report=xml:coverage.xml \
                  --cov-report=term-missing \
-                 --html=$GITHUB_WORKSPACE/test-results/unit-report.html \
+                 --html=/tmp/unit-report.html \
                  --self-contained-html
+          mkdir -p test-results
+          cp /tmp/unit-report.html test-results/unit-report.html
         env:
           PYTHONPATH: ${{ github.workspace }}
 
