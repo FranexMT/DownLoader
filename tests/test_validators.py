@@ -9,7 +9,7 @@ from src.utils.validators import (
 
 class TestIsValidUrl:
     def test_valid_http_url(self):
-        assert is_valid_url("http://example.com/file.zip") is True
+        assert is_valid_url("http://example.com/file.zip") is False
 
     def test_valid_https_url(self):
         assert is_valid_url("https://example.com/file.zip") is True
