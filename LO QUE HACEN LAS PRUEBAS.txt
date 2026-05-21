@@ -1,0 +1,435 @@
+================================================================================
+  EXPLICACION COMPLETA DE LAS PRUEBAS - DownLoader Pro
+================================================================================
+
+El proyecto tiene 3 tipos de pruebas que se ejecutan en orden en GitHub Actions:
+
+  1. Pruebas Unitarias (pytest)     --> se ejecutan primero
+  2. Pruebas de API (Newman)        --> se ejecutan cuando las unitarias pasan
+  3. Pruebas de Interfaz UI (Playwright) --> se ejecutan en paralelo con las de API
+
+En total hay 189 pruebas unitarias + 27 pruebas de API + 6 pruebas de UI = 222 pruebas.
+
+
+================================================================================
+  1. PRUEBAS UNITARIAS
+================================================================================
+
+Las pruebas unitarias comprueban piezas pequeñas del codigo por separado, sin
+red, sin base de datos real en disco permanente, sin interfaz grafica.
+
+Se encuentran en la carpeta: tests/
+
+-------------------------------------------------------------------------------
+  tests/test_validators.py  (45 pruebas)
+  Que comprueba: src/utils/validators.py
+-------------------------------------------------------------------------------
+
+Este modulo valida URLs y nombres de archivo. Las pruebas comprueban:
+
+  TestIsValidUrl (15 pruebas):
+  - Una URL con http:// es valida
+  - Una URL con https:// es valida
+  - Una URL sin protocolo (ej: "example.com/file.zip") es INVALIDA
+  - Una URL con ftp:// es INVALIDA (solo acepta http y https)
+  - Una cadena vacia es INVALIDA
+  - None (sin valor) es INVALIDA
+  - Solo el protocolo sin dominio ("https://") es INVALIDA
+  - URL con puerto (https://example.com:8080/) es valida
+  - URL con parametros de consulta es valida
+  - URL con fragmento (#seccion) es valida
+  - URL con IP es valida
+  - URL con solo espacios es INVALIDA
+  - Entero (no string) es INVALIDA
+  - URL solo con path (/ruta) es INVALIDA
+  - URL con subdominio es valida
+
+  TestExtractFilenameFromUrl (8 pruebas):
+  - Extrae "file.zip" de "https://example.com/path/file.zip"
+  - Si hay cabecera Content-Disposition con nombre de archivo, lo usa
+  - Si la URL no tiene nombre de archivo, devuelve "download" como fallback
+  - Sin cabeceras extra, extrae el nombre de la URL normalmente
+  - URL con parametros de consulta ignora el query string
+  - Content-Disposition con comillas simples
+  - URL raiz devuelve "download"
+  - Ruta profunda extrae el ultimo segmento
+
+  TestSanitizeFilename (8 pruebas):
+  - Elimina caracteres prohibidos en nombres de archivo: < > : " / \ | ? *
+  - Elimina puntos y espacios al inicio del nombre
+  - Un nombre vacio se convierte en "download"
+  - Un nombre muy largo (mas de 200 caracteres) se recorta
+  - Un nombre normal como "archivo_normal.mp4" no cambia
+  - Solo puntos se convierte en "download"
+  - Solo espacios se convierte en "download"
+  - Barra invertida es reemplazada
+
+  TestVerifyChecksum (7 pruebas):
+  - Si no se proporciona checksum esperado, siempre devuelve True (OK)
+  - Si el checksum SHA-256 coincide con el archivo, devuelve True
+  - Si el checksum NO coincide, devuelve False
+  - Si el archivo no existe, devuelve False
+  - Checksum MD5 correcto devuelve True
+  - None como esperado devuelve True
+  - Checksum en mayusculas es comparado sin distincion
+
+  TestGetFileHash (5 pruebas):
+  - sha256 devuelve string hex de 64 chars
+  - sha256 valor correcto
+  - md5 devuelve string de 32 chars
+  - Archivo vacio devuelve hash conocido
+  - Archivo inexistente devuelve ""
+
+  TestIsSupportedUrl (2 pruebas):
+  - http es soportado
+  - ftp no es soportado
+
+-------------------------------------------------------------------------------
+  tests/test_helpers.py  (45 pruebas)
+  Que comprueba: src/utils/helpers.py
+-------------------------------------------------------------------------------
+
+Este modulo tiene funciones de utilidad para formatear datos y mostrarlos
+al usuario de forma legible. Las pruebas comprueban:
+
+  TestFormatBytes (11 pruebas):
+  - 0 bytes se muestra como "0 B"
+  - Numeros negativos se muestran como "0 B"
+  - 500 bytes se muestra como "500 B"
+  - 1024 bytes se muestra con "KB" en el texto
+  - 1 MB (1024*1024) se muestra con "MB"
+  - 1 GB (1024^3) se muestra con "GB"
+  - 1 TB se muestra con "TB"
+  - valor 1 muestra "1 B"
+  - 1023 bytes no muestra "KB"
+  - exactamente 1 MB muestra "1.00 MB"
+  - Devuelve string
+
+  TestCalculateEta (8 pruebas):
+  - Si la velocidad es 0, el tiempo estimado es "--:--"
+  - Si ya se descargo todo, devuelve "--:--"
+  - Con datos normales, devuelve tiempo en segundos
+  - Con descarga grande y lenta, devuelve minutos
+  - Con archivo muy grande, devuelve horas
+  - downloaded > total devuelve "--:--"
+  - Velocidad negativa devuelve "--:--"
+  - Devuelve string
+
+  TestFormatSpeed (5 pruebas):
+  - 0 bytes/s se muestra como "0 B/s"
+  - 1024 bytes/s muestra "KB" y "/s"
+  - MB/s muestra "MB" y "/s"
+  - Negativo devuelve "0 B/s"
+  - 1 byte/s muestra "B" y "/s"
+
+  TestGetFileExtension (7 pruebas):
+  - "video.mp4" devuelve "mp4"
+  - "archivo" sin extension devuelve ""
+  - "FOTO.JPG" devuelve "jpg" (siempre en minusculas)
+  - "archivo.tar.gz" devuelve "gz" (ultima extension)
+  - ".hidden" devuelve "hidden"
+  - "file." devuelve ""
+  - Extension con numeros ("mp3")
+
+  TestGetFileIcon (9 pruebas):
+  - La extension "mp4" devuelve icono de video
+  - La extension "mp3" devuelve icono de musica
+  - Extension desconocida devuelve icono de carpeta
+  - La extension "pdf" devuelve icono de libro
+  - "zip" devuelve icono de paquete
+  - "avi" devuelve icono de video
+  - "jpg" devuelve icono de imagen
+  - "docx" devuelve icono de documento
+  - "iso" devuelve icono de disco
+
+  TestFormatTimestamp (3 pruebas):
+  - Devuelve string
+  - Contiene el anyo actual
+  - Timestamp conocido tiene separadores de fecha/hora
+
+  TestCheckFfmpeg (1 prueba):
+  - Devuelve bool
+
+  TestOpenFile (1 prueba):
+  - Archivo inexistente devuelve False
+
+-------------------------------------------------------------------------------
+  tests/test_database.py  (38 pruebas)
+  Que comprueba: src/core/database.py
+-------------------------------------------------------------------------------
+
+Este modulo gestiona la base de datos SQLite donde se guardan los registros
+de descargas. Cada prueba usa una base de datos temporal que se borra al acabar.
+
+  TestDatabaseCreate (5 pruebas):
+  - Devuelve ID numerico mayor que 0
+  - Almacena la URL correctamente
+  - Almacena el titulo si se provee
+  - Almacena el thumbnail si se provee
+  - El estado inicial es "PENDING"
+
+  TestDatabaseUpdate (8 pruebas):
+  - Actualiza el estado
+  - Actualiza tamanyo total y descargado
+  - Actualiza la velocidad
+  - Actualiza el mensaje de error
+  - Actualiza el checksum
+  - Actualiza el titulo
+  - Actualiza multiples campos a la vez
+  - Campo no reconocido es ignorado
+
+  TestDatabaseQuery (9 pruebas):
+  - get_all_downloads devuelve todas las descargas
+  - Buscar ID inexistente devuelve None
+  - Se puede borrar una descarga
+  - Las estadisticas tienen campo "completed"
+  - get_download devuelve dict
+  - BD vacia devuelve lista vacia
+  - Filtro por estado funciona
+  - Borrar ID inexistente devuelve False
+  - Estadisticas en BD vacia devuelven ceros
+
+  TestDatabaseActiveDownloads (4 pruebas):
+  - BD vacia devuelve lista vacia
+  - PENDING aparece en activas
+  - DOWNLOADING aparece en activas
+  - COMPLETED NO aparece en activas
+
+  TestDatabaseCompletedDownloads (3 pruebas):
+  - BD vacia devuelve lista vacia
+  - COMPLETED aparece
+  - PENDING no aparece
+
+  TestDatabaseClearHistory (4 pruebas):
+  - Limpiar todo borra todos los registros
+  - Limpiar por estado borra solo esos
+  - Limpiar COMPLETED no toca PENDING
+  - Devuelve conteo de borrados
+
+  TestDatabaseStatisticsExtended (5 pruebas):
+  - Campo "total" presente
+  - Campo "failed" presente
+  - Campo "total_bytes" presente
+  - Conteo de fallidas correcto
+  - Conteo total correcto
+
+-------------------------------------------------------------------------------
+  tests/test_downloader.py  (31 pruebas)
+  Que comprueba: src/core/downloader.py
+-------------------------------------------------------------------------------
+
+Este modulo es el motor de descargas. Las pruebas solo comprueban la clase
+DownloadTask (una tarea individual de descarga), sin iniciar descargas reales.
+Se usa "mock" para que no lea archivos de configuracion reales.
+
+  TestDownloadTaskInit (10 pruebas):
+  - Estado inicial es "PENDING"
+  - Progreso inicial es 0.0
+  - ID de tarea almacenado correctamente
+  - URL almacenada correctamente
+  - Evento de pausa activo al inicio
+  - Evento de parada inactivo al inicio
+  - Constantes de estado definidas
+  - Destino almacenado correctamente
+  - downloaded_size inicial es 0
+  - total_size inicial es 0
+
+  TestDownloadTaskPauseResume (7 pruebas):
+  - pause() cambia estado a PAUSED si estaba en DOWNLOADING
+  - pause() desactiva el evento de pausa
+  - pause() no hace nada si no estaba en DOWNLOADING
+  - resume() cambia estado a DOWNLOADING si estaba en PAUSED
+  - resume() reactiva el evento de pausa
+  - resume() no hace nada si no estaba en PAUSED
+  - Ciclo completo pause() + resume() funciona
+
+  TestDownloadTaskStop (4 pruebas):
+  - stop() activa el evento de parada
+  - stop() desbloquea hilos que esperaban en pausa
+  - stop() puede llamarse multiples veces sin error
+  - stop() funciona desde cualquier estado
+
+  TestDownloadTaskAttributes (5 pruebas):
+  - speed inicial es 0.0
+  - error inicial es None
+  - num_threads tomado de config
+  - chunk_manager inicial es None
+  - output_file inicial es None
+
+  TestDownloadTaskStatusValues (5 pruebas):
+  - STATUS_PENDING == "PENDING"
+  - STATUS_DOWNLOADING == "DOWNLOADING"
+  - STATUS_PAUSED == "PAUSED"
+  - STATUS_COMPLETED == "COMPLETED"
+  - STATUS_FAILED == "FAILED"
+
+-------------------------------------------------------------------------------
+  tests/test_chunk_manager.py  (30 pruebas)
+  Que comprueba: src/core/chunk_manager.py
+-------------------------------------------------------------------------------
+
+Las descargas grandes se dividen en trozos (chunks) que se descargan en
+paralelo y luego se unen. Este modulo gestiona esos trozos.
+
+  TestChunkManagerPaths (5 pruebas):
+  - chunk 0 se llama "part_0"
+  - directorio temporal empieza con "." y termina con ".tmp"
+  - get_chunk_path devuelve Path
+  - chunk path esta dentro del directorio temporal
+  - state_file esta dentro del directorio temporal
+
+  TestChunkManagerTempDir (5 pruebas):
+  - create_temp_dir() crea el directorio
+  - delete_temp_dir() lo borra
+  - cleanup_chunks() tambien lo borra
+  - create_temp_dir() es idempotente
+  - delete_temp_dir() en dir inexistente es seguro
+
+  TestChunkManagerMerge (6 pruebas):
+  - Un solo trozo se une correctamente
+  - Varios trozos se unen en orden
+  - Trozo faltante hace que merge devuelva False
+  - delete_after=False mantiene los trozos
+  - Contenido del archivo final es correcto
+  - 0 trozos devuelve True
+
+  TestChunkManagerState (6 pruebas):
+  - Se guarda y carga el progreso correctamente
+  - Sin archivo de estado, load_state() devuelve None
+  - Sin directorio temporal, resume es False
+  - Con trozos descargados, resume es True
+  - save_state() crea el archivo de estado
+  - Estado guardado tiene campo "timestamp"
+
+  TestChunkManagerStatus (4 pruebas):
+  - Sin directorio: exists=False
+  - Sin directorio: chunks vacio
+  - Con trozos: los lista
+  - Muestra tamanyo correcto de cada trozo
+
+  TestGlobalCleanup (4 pruebas):
+  - No falla con ruta inexistente
+  - No falla con directorio vacio
+  - Borra directorios .tmp con mas de 24 horas de antiguedad
+  - Conserva directorios .tmp recientes
+
+
+================================================================================
+  2. PRUEBAS DE API
+================================================================================
+
+Estas pruebas comprueban que el servidor Flask responde correctamente a
+peticiones HTTP. Se usan con Newman (la version de consola de Postman).
+
+El servidor de prueba (tests/api/server.py) se inicia antes de las pruebas
+y se detiene al terminar. Tiene 4 endpoints:
+
+  GET  /api/stats           --> estadisticas de descargas
+  GET  /api/downloads       --> lista de descargas
+  POST /api/validate-url    --> valida si una URL es correcta
+  GET  /api/config          --> configuracion del sistema
+
+Las pruebas estan en: tests/api/DownLoader-API.postman_collection.json
+
+  Prueba 1 - GET /api/stats (6 comprobaciones):
+  - Codigo 200 OK
+  - Tiempo de respuesta < 1000ms
+  - Content-Type es application/json
+  - Body no esta vacio
+  - Campo "total" es numero
+  - Campo "completed" es numero
+
+  Prueba 2 - GET /api/downloads (5 comprobaciones):
+  - Codigo 200 OK
+  - Tiempo de respuesta < 1000ms
+  - Content-Type es application/json
+  - Body no esta vacio
+  - Campo "downloads" es array
+
+  Prueba 3 - POST /api/validate-url con URL valida (6 comprobaciones):
+  - Codigo 200 OK
+  - Tiempo de respuesta < 1000ms
+  - Content-Type es application/json
+  - Body no esta vacio
+  - valid=true
+  - url en respuesta coincide con enviada
+
+  Prueba 4 - POST /api/validate-url con URL invalida (5 comprobaciones):
+  - Codigo 200 OK
+  - Tiempo de respuesta < 1000ms
+  - Content-Type es application/json
+  - Body no esta vacio
+  - valid=false
+
+  Prueba 5 - GET /api/config (5 comprobaciones):
+  - Codigo 200 OK
+  - Tiempo de respuesta < 1000ms
+  - Content-Type es application/json
+  - Body no esta vacio
+  - Campo "default_threads" es numero
+
+  Total: 27 comprobaciones automaticas dentro de 5 peticiones HTTP.
+
+
+================================================================================
+  3. PRUEBAS DE INTERFAZ DE USUARIO (UI)
+================================================================================
+
+Estas pruebas abren un navegador web real (Chromium) de forma automatica y
+simulan acciones de un usuario: hacer clic en botones, escribir texto, etc.
+Usan la herramienta Playwright.
+
+El mismo servidor Flask de las pruebas de API sirve la pagina web de prueba.
+
+Las pruebas estan en: tests/ui/test_gui.py
+
+  CP-UI-01 - test_page_loads_correctly:
+  Abre la pagina principal y verifica que el titulo del navegador
+  sea exactamente "DownLoader Pro - Test UI".
+
+  CP-UI-02 - test_app_title_visible:
+  Verifica que el encabezado principal (elemento #app-title) esta
+  visible en pantalla y contiene el texto "DownLoader Pro".
+
+  CP-UI-03 - test_url_form_elements_exist:
+  Verifica que el formulario tiene todos sus elementos:
+  - El campo de texto donde escribir la URL (#url-input)
+  - El boton "Validar URL" (#validate-btn)
+  - El div donde aparece el resultado (#validation-result)
+
+  CP-UI-04 - test_valid_url_shows_success_message:
+  Escribe "https://example.com/archivo.zip" en el campo de URL,
+  hace clic en "Validar URL" y verifica que aparece el texto "URL valida".
+
+  CP-UI-05 - test_invalid_url_shows_error_message:
+  Escribe "esto-no-es-una-url" en el campo de URL,
+  hace clic en "Validar URL" y verifica que aparece el texto "invalida".
+
+  CP-UI-06 - test_stats_section_loads_with_data:
+  Espera a que la pagina cargue completamente (incluyendo las llamadas
+  AJAX al servidor) y verifica que la seccion de estadisticas
+  muestra texto con "Total:" (dato real del servidor).
+
+
+================================================================================
+  RESUMEN GENERAL
+================================================================================
+
+  Tipo de prueba     | Archivo / Herramienta         | Nro. pruebas
+  -------------------|-------------------------------|-------------
+  Unitarias          | test_validators.py            | 45
+  Unitarias          | test_helpers.py               | 45
+  Unitarias          | test_database.py              | 38
+  Unitarias          | test_downloader.py            | 31
+  Unitarias          | test_chunk_manager.py         | 30
+  API (HTTP)         | DownLoader-API.postman_...    | 27 checks / 5 requests
+  UI (Navegador)     | test_gui.py (Playwright)      |  6
+  -------------------|-------------------------------|-------------
+  TOTAL              |                               | 222+ comprobaciones
+
+  Pipeline de CI/CD (GitHub Actions):
+  - Las pruebas unitarias se ejecutan PRIMERO
+  - Si pasan, se ejecutan en PARALELO las de API y las de UI
+  - Si alguna falla, el pipeline marca error y no se puede hacer merge
+
+================================================================================

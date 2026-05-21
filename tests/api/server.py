@@ -1,12 +1,13 @@
 """
 Servidor Flask de pruebas para DownLoader Pro.
-Expone la lógica del core via API REST y sirve interfaz web para pruebas UI.
+Expone la logica del core via API REST y sirve interfaz web simple para pruebas UI.
 """
+
 import sys
 import os
 import tempfile
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -18,7 +19,7 @@ app = Flask(__name__)
 CORS(app)
 
 _test_db_dir = tempfile.mkdtemp()
-_test_db = Database(db_path=os.path.join(_test_db_dir, 'test.db'))
+_test_db = Database(db_path=os.path.join(_test_db_dir, "test.db"))
 
 HTML_PAGE = """<!DOCTYPE html>
 <html lang="es">
@@ -118,37 +119,44 @@ HTML_PAGE = """<!DOCTYPE html>
 """
 
 
-@app.route('/')
+@app.route("/")
 def index():
     return HTML_PAGE
 
 
-@app.route('/api/stats')
+@app.route("/api/stats")
 def stats():
     return jsonify(_test_db.get_statistics())
 
 
-@app.route('/api/downloads')
+@app.route("/api/downloads")
 def downloads():
-    return jsonify({'downloads': _test_db.get_all_downloads()})
+    return jsonify({"downloads": _test_db.get_all_downloads()})
 
 
-@app.route('/api/validate-url', methods=['POST'])
+@app.route("/api/validate-url", methods=["POST"])
 def validate_url():
     data = request.get_json(silent=True) or {}
-    url = data.get('url', '')
+    url = data.get("url", "")
     valid = is_valid_url(url)
-    return jsonify({'valid': valid, 'url': url})
+    return jsonify({"valid": valid, "url": url})
 
 
-@app.route('/api/config')
+@app.route("/api/config")
 def config():
     cfg = load_config()
-    safe_keys = ['default_threads', 'chunk_size', 'max_retries', 'timeout',
-                 'max_speed_kbps', 'notifications', 'scheduler_enabled']
-    return jsonify({k: cfg[k] for k in safe_keys if k in cfg})
+    safe_keys = [
+        "default_threads",
+        "chunk_size",
+        "max_retries",
+        "timeout",
+        "max_speed_kbps",
+        "notifications",
+        "scheduler_enabled",
+    ]
+    return jsonify({k: cfg.get(k) for k in safe_keys if k in cfg})
 
 
-if __name__ == '__main__':
-    port = int(os.environ.get('API_PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=False)
+if __name__ == "__main__":
+    port = int(os.environ.get("API_PORT", 5001))
+    app.run(host="0.0.0.0", port=port, debug=False)
